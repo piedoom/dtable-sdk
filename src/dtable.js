@@ -295,10 +295,6 @@ class DTable {
     return TableUtils.getTableById(tables, table_id);
   }
 
-  getUserCommonInfo(email, avatar_size) {
-    return this.dtableWebAPI.getUserCommonInfo(email, avatar_size);
-  }
-
   addTable(tableName) {
     this.dtableStore.insertTable(tableName);
   }
@@ -369,6 +365,25 @@ class DTable {
   getGroupRows(view, table) {
     const value = this.dtableStore.value;
     return Views.getGroupedRows(view, table, value);
+  }
+
+  moveColumn(selectedTable, source, target) {
+    let tables = this.getTables();
+    let selectedTableIdx = tables.findIndex(table => table._id === selectedTable._id);
+    if (selectedTableIdx === -1) return;
+    let { columns } = selectedTable;
+    let sourceIndex = columns.findIndex(column => column.name === source);
+    let targetIndex = columns.findIndex(column => column.name === target);
+    let sourceColumn = columns[sourceIndex];
+    let targetColumn = columns[targetIndex];
+    let upper_column_key = sourceIndex === 0 ? null : columns[sourceIndex - 1].key;
+    let move_position;
+    if (sourceIndex > targetIndex) {
+      move_position = 'move_left';
+    } else {
+      move_position = 'move_right';
+    }
+    this.dtableStore.moveColumn(selectedTableIdx, move_position, sourceColumn.key, targetColumn.key, upper_column_key);
   }
 }
 
